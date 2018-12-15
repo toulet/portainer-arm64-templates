@@ -1,0 +1,21 @@
+version: '1.0'
+
+services:
+  agent:
+    image: hypriot/rpi-busybox-httpd
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+        mode: host
+    networks:
+      - busybox-httpd
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+
+networks:
+  busybox-httpd:
+    driver: overlay
+    attachable: true
