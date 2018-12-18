@@ -1,21 +1,21 @@
-version: '1.0'
+version: '3.2'
 
 services:
   agent:
-    image: hypriot/rpi-busybox-httpd
+    image: hypriot/rpi-whoami
     ports:
       - target: 80
-        published: 8080
+        published: 8001
         protocol: tcp
         mode: host
     networks:
-      - busybox-httpd
+      - scalable-web-frontend
     deploy:
       mode: global
       placement:
         constraints: [node.platform.os == linux]
 
 networks:
-  busybox-httpd:
+  scalable-web-frontend:
     driver: overlay
     attachable: true
