@@ -1,21 +1,83 @@
 version: '3.2'
 
+
 services:
-  agent:
+  lb:
+    image: hypriot/rpi-haproxy
+    networks:
+      - frontend
+    ports:
+      - 80
+      - 70
+    deploy:
+      replicas: 2
+    restart: always
+    
+  http_1:
     image: hypriot/rpi-whoami
     ports:
-      - target: 80
-        published: 8001
-        protocol: tcp
-        mode: host
+      - 80
     networks:
-      - scalable-web-frontend
+      - frontend
+      - backend
     deploy:
-      mode: global
-      placement:
-        constraints: [node.platform.os == linux]
+      replicas: 1
+
+  http_2:
+    image: hypriot/rpi-whoami
+    ports:
+      - 80
+    networks:
+      - frontend
+      - backend
+    deploy:
+      replicas: 1
+
+  http_3:
+    image: hypriot/rpi-whoami
+    ports:
+      - 80
+    networks:
+      - frontend
+      - backend
+    deploy:
+      replicas: 1
+
+  http_4:
+    image: hypriot/rpi-whoami
+    ports:
+      - 80
+    networks:
+      - frontend
+      - backend
+    deploy:
+      replicas: 1
+
+  db:
+    image: hypriot/rpi-mysql
+    networks:
+      - backend
+    ports:
+      - 3306
+    volumes:
+      - database:/var/lib/mysql
+    deploy:
+      replicas: 2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    restart: always
+    
 
 networks:
-  scalable-web-frontend:
+  frontend:
     driver: overlay
     attachable: true
+
+  backend:
+    driver: overlay
+    attachable: true
+
+
+volumes:
+  database:
+    
