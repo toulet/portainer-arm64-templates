@@ -1,83 +1,55 @@
-version: '3.2'
-
+version: '3.3'
 
 services:
-  lb:
+  web_server_1:
+    image: hypriot/rpi-whoami
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    networks:
+      - frontend
+
+  web_server_2:
+    image: hypriot/rpi-whoami
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    networks:
+      - frontend
+
+  load_balancer:
     image: hypriot/rpi-haproxy
-    networks:
-      - frontend
-    ports:
-      - 80
-      - 70
-    deploy:
-      replicas: 2
-    restart: always
-    
-  http_1:
-    image: hypriot/rpi-whoami
-    ports:
-      - 80
-    networks:
-      - frontend
-      - backend
     deploy:
       replicas: 1
-
-  http_2:
-    image: hypriot/rpi-whoami
-    ports:
-      - 80
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints: [node.role == manager]
+    configs:
+      - source: haproxy_config
+        target: /haproxy-override/haproxy.cfg
+        mode: 0744
+    links:
+      - web_server_1
+      - web_server_2
     networks:
       - frontend
-      - backend
-    deploy:
-      replicas: 1
-
-  http_3:
-    image: hypriot/rpi-whoami
     ports:
-      - 80
-    networks:
-      - frontend
-      - backend
-    deploy:
-      replicas: 1
+      - "80:80"
+      - "10080:10080"
 
-  http_4:
-    image: hypriot/rpi-whoami
-    ports:
-      - 80
-    networks:
-      - frontend
-      - backend
-    deploy:
-      replicas: 1
-
-  db:
-    image: hypriot/rpi-mysql
-    networks:
-      - backend
-    ports:
-      - 3306
-    volumes:
-      - database:/var/lib/mysql
-    deploy:
-      replicas: 2
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    restart: always
-    
-
+configs:
+  haproxy_config:
+    external: true
+      
 networks:
   frontend:
     driver: overlay
-    attachable: true
-
-  backend:
-    driver: overlay
-    attachable: true
-
-
-volumes:
-  database:
-    
