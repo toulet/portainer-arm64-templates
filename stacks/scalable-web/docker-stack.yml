@@ -23,6 +23,50 @@ services:
     networks:
       - frontend
 
+  web_server_3:
+    image: hypriot/rpi-whoami
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    networks:
+      - frontend
+
+  web_server_4:
+    image: hypriot/rpi-whoami
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    networks:
+      - frontend
+
+  web_server_5:
+    image: hypriot/rpi-whoami
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    networks:
+      - frontend
+
+  web_server_6:
+    image: hypriot/rpi-whoami
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+    networks:
+      - frontend
+
   load_balancer:
     image: hypriot/rpi-haproxy
     deploy:
@@ -33,6 +77,13 @@ services:
         window: 120s
       placement:
         constraints: [node.role == manager]
+    depends_on:
+      - web_server_1
+      - web_server_2
+      - web_server_3
+      - web_server_4
+      - web_server_5
+      - web_server_6
     configs:
       - source: haproxy_config
         target: /haproxy-override/haproxy.cfg
@@ -40,11 +91,15 @@ services:
     links:
       - web_server_1
       - web_server_2
+      - web_server_3
+      - web_server_4
+      - web_server_5
+      - web_server_6
     networks:
       - frontend
     ports:
       - "80:80"
-      - "10080:10080"
+      - "8080:8080"
 
 configs:
   haproxy_config:

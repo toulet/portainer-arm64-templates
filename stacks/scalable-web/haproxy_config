@@ -21,7 +21,7 @@ defaults
   errorfile 503 /etc/haproxy/errors/503.http
   errorfile 504 /etc/haproxy/errors/504.http
 
-listen stats :10080
+listen stats :8080
   stats enable
   stats uri /
 
@@ -36,5 +36,9 @@ backend nodes
   balance roundrobin
   server web_server_1 web_server_1:8000 check
   server web_server_2 web_server_2:8000 check
+  server web_server_3 web_server_3:8000 check
+  server web_server_4 web_server_4:8000 check
+  server web_server_5 web_server_5:8000 check
+  server web_server_6 web_server_6:8000 check
   option httpchk GET /
   http-check expect status 200
